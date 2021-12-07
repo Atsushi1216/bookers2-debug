@@ -1,15 +1,19 @@
 class PostCommentsController < ApplicationController
   def create
-    book = Book.find(params[:book_id])
+    @book = Book.find(params[:book_id])
     comment = current_user.post_comments.new(post_comment_params)
-    comment.book_id = book.id
+    comment.book_id = @book.id
     comment.save
-    redirect_to book_path(params[:book_id])
+    unless comment.save
+    flash.now[:danger] = "要件を満たしていません。"
+    render 'books/show'
+    end
   end
 
   def destroy
-    PostComment.find_by(id: params[:id]).destroy
-    redirect_to book_path(params[:book_id])
+    @book = Book.find(params[:book_id])
+    comment = @book.post_comments.find(params[:id])
+    comment.destroy
   end
 
   private
